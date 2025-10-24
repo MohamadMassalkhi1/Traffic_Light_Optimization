@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Signal Optimization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 1.05em;
+        }
+        
+        select, input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        select:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .results {
+            margin-top: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            display: none;
+        }
+        
+        .result-item {
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .result-value {
+            font-size: 1.8em;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .chart-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .chart-container img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .badge-rush {
+            background: #fee;
+            color: #c33;
+        }
+        
+        .badge-normal {
+            background: #efe;
+            color: #3c3;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .info-box p {
+            margin: 5px 0;
+            color: #1565c0;
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #c33;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚦 Traffic Signal Optimization</h1>
+        <p class="subtitle">AI-Powered Traffic Management with Neural Networks</p>
+        
+        <div class="info-box">
+            <p><strong>How it works:</strong> This system uses a supervised learning neural network trained on traffic patterns to predict optimal signal timing.</p>
+            <p><strong>Training Data:</strong> 30 days of simulated traffic data across 20 intersections with various conditions (rush hours, weekdays/weekends).</p>
+        </div>
+        
+        <form id="predictionForm">
+            <div class="form-group">
+                <label for="hour">Hour of Day (0-23):</label>
+                <input type="number" id="hour" name="hour" min="0" max="23" step="0.5" value="8" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="day_of_week">Day of Week:</label>
+                <select id="day_of_week" name="day_of_week" required>
+                    <option value="0">Monday</option>
+                    <option value="1" selected>Tuesday</option>
+                    <option value="2">Wednesday</option>
+                    <option value="3">Thursday</option>
+                    <option value="4">Friday</option>
+                    <option value="5">Saturday</option>
+                    <option value="6">Sunday</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="traffic_volume">Traffic Volume (vehicles/hour):</label>
+                <input type="number" id="traffic_volume" name="traffic_volume" min="10" max="300" value="150" required>
+            </div>
+            
+            <button type="submit" class="btn" id="submitBtn">Calculate Optimal Signal Time</button>
+        </form>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 15px; color: #667eea; font-weight: 600;">Processing...</p>
+        </div>
+        
+        <div class="error-message" id="errorMessage"></div>
+        
+        <div class="results" id="results">
+            <h2 style="margin-bottom: 20px; color: #667eea;">📊 Results</h2>
+            
+            <div class="result-item">
+                <div class="result-label">Recommended Signal Time</div>
+                <div class="result-value" id="signalTime">-- seconds</div>
+            </div>
+            
+            <div class="result-item">
+                <div class="result-label">Model Used</div>
+                <div style="font-size: 1.2em; color: #333;" id="modelUsed">Supervised Learning (Neural Network)</div>
+            </div>
+            
+            <div class="result-item">
+                <div class="result-label">Traffic Conditions</div>
+                <div style="font-size: 1.2em; color: #333;" id="conditions">--</div>
+            </div>
+            
+            <div class="chart-container" id="chartContainer"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Handle form submission
+        document.getElementById('predictionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Gather form data
+            const formData = {
+                hour: parseFloat(document.getElementById('hour').value),
+                day_of_week: parseInt(document.getElementById('day_of_week').value),
+                traffic_volume: parseFloat(document.getElementById('traffic_volume').value)
+            };
+            
+            // Show loading, hide results and errors
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('submitBtn').disabled = true;
+            
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+                
+                // Display results
+                document.getElementById('signalTime').textContent = result.signal_time + ' seconds';
+                
+                // Build condition badges
+                const rushBadge = result.is_rush_hour 
+                    ? '<span class="badge badge-rush">Rush Hour</span>'
+                    : '<span class="badge badge-normal">Normal Traffic</span>';
+                
+                const weekendBadge = result.is_weekend 
+                    ? '<span class="badge badge-normal">Weekend</span>'
+                    : '<span class="badge badge-rush">Weekday</span>';
+                
+                document.getElementById('conditions').innerHTML = rushBadge + weekendBadge;
+                
+                // Display chart
+                if (result.chart) {
+                    document.getElementById('chartContainer').innerHTML = 
+                        '<img src="data:image/png;base64,' + result.chart + '" alt="Traffic Analysis Chart">';
+                }
+                
+                // Show results
+                document.getElementById('results').style.display = 'block';
+                
+            } catch (error) {
+                // Show error message
+                document.getElementById('errorMessage').textContent = 'Error: ' + error.message;
+                document.getElementById('errorMessage').style.display = 'block';
+            } finally {
+                // Hide loading and re-enable button
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('submitBtn').disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
